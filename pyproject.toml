@@ -1,0 +1,21 @@
+[project]
+name = "mcp-browser-use-study"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ctransformers>=0.2.27",
+    "gpt4all>=2.8.2",
+    "langchain>=0.3.25",
+    "langchain-community>=0.3.23",
+    "langchain-ollama>=0.3.2",
+    "llama-cpp-python>=0.3.8",
+    "torch>=2.7.0",
+    "transformers>=4.51.3",
+]
+
+[dependency-groups]
+dev = [
+    "langchain-cli>=0.0.36",
+]
