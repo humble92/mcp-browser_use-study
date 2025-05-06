@@ -14,3 +14,6 @@ wheels/
 
 # private memo
 .memo.txt
+
+# agent history files
+agent_history.*

@@ -1,8 +1,9 @@
 import argparse
 import sys  # Need sys to exit cleanly
+import asyncio # Import asyncio
 from src.uc1_local_hf.uc1 import uc1
-from src.uc2_gpt4all.uc2 import uc2
-from src.uc3_ollama.uc3 import uc3
+from src.uc2_gpt4all.uc2 import uc2 # uc2 is now an async function
+from src.uc3_ollama.uc3 import uc3 # uc3 is now an async function
 
 
 def main():
@@ -29,9 +30,11 @@ def main():
     if args.use_case == "uc1":
         uc1(remaining_args) # Pass the list of remaining args
     elif args.use_case == "uc2":
-        uc2(remaining_args) # Pass the list of remaining args
+        # Run the async uc2 function using asyncio.run()
+        asyncio.run(uc2(remaining_args))
     elif args.use_case == "uc3":
-        uc3(remaining_args) # Pass the list of remaining args
+        # Run the async uc3 function using asyncio.run()
+        asyncio.run(uc3(remaining_args))
 
 
 if __name__ == "__main__":
