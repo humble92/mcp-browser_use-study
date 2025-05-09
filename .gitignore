@@ -15,5 +15,8 @@ wheels/
 # private memo
 .memo.txt
 
+# private cookies
+cookies.json
+
 # agent history files
 agent_history.*

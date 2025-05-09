@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Generation: Manual Login Required</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 40px; 
+            background-color: #f4f7f6; 
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 { 
+            color: #2c3e50; 
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        p { 
+            margin-bottom: 15px; 
+        }
+        code { 
+            background-color: #e9ecef; 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            font-family: "Courier New", Courier, monospace;
+        }
+        strong {
+            color: #3498db;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffeeba;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manual Login for Cookie Generation</h1>
+        <p>This browser window has been opened to help you generate authentication cookies for later use.</p>
+        <p><strong>Your Action Required:</strong> Please navigate to the website you need to log into (e.g., by typing the URL in the address bar above) and complete the login process manually within this window.</p>
+        <p>Once you have successfully logged in, please <strong>return to the terminal window</strong> from which you ran this script and press the <strong>Enter</strong> key.</p>
+        <div class="important">
+            <p>After you press Enter in the terminal, your login session information (cookies) will be automatically saved to a file named <code>cookies.json</code> in the root directory of this project.</p>
+            <p>This <code>cookies.json</code> file can then be used by other operations to access the website as if you were logged in, without needing to log in again each time.</p>
+        </div>
+        <p>Thank you for your cooperation!</p>
+    </div>
+</body>
+</html> 

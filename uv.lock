@@ -1334,6 +1334,7 @@ dependencies = [
     { name = "langchain-community" },
     { name = "langchain-ollama" },
     { name = "llama-cpp-python" },
+    { name = "playwright" },
     { name = "torch" },
     { name = "transformers" },
 ]
@@ -1352,6 +1353,7 @@ requires-dist = [
     { name = "langchain-community", specifier = ">=0.3.23" },
     { name = "langchain-ollama", specifier = ">=0.3.2" },
     { name = "llama-cpp-python", specifier = ">=0.3.8" },
+    { name = "playwright" },
     { name = "torch", specifier = ">=2.7.0" },
     { name = "transformers", specifier = ">=4.51.3" },
 ]
