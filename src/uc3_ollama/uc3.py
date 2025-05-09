@@ -1,7 +1,8 @@
 import json
 import pathlib
 from langchain_ollama import ChatOllama
-from browser_use import Agent, Browser, BrowserConfig, BrowserContextConfig
+from browser_use import Agent, Browser, BrowserConfig
+from browser_use.browser.context import BrowserContextConfig
 
 MAX_STEPS=15
 COOKIES_FILE_PATH = pathlib.Path("cookies.json").resolve()
