@@ -18,5 +18,9 @@ wheels/
 # private cookies
 cookies.json
 
+# chrome debug profile
+.tmp_chrome_debug_uc3
+chrome_debug
+
 # agent history files
 agent_history.*

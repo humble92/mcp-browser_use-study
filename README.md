@@ -49,26 +49,26 @@ To allow `uc3` to use your existing browser sessions (e.g., logged-in Gmail), yo
         ```cmd
         "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\tmp\chrome_debug_uc3"
         ```
-        (Adjust `C:\tmp\chrome_debug_uc3` to your desired temporary profile path. If using your default profile, find its path, e.g., `C:\Users\YourUser\AppData\Local\Google\Chrome\User Data`)
+        (Adjust `C:\tmp\chrome_debug_uc3` to your desired temporary profile path. Avoid your default profile, e.g., `C:\Users\YourUser\AppData\Local\Google\Chrome\User Data`)
 
     *   **macOS:**
         ```bash
         /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/tmp/chrome_debug_uc3"
         ```
-        (Adjust `~/tmp/chrome_debug_uc3` or use your default profile path, e.g., `~/Library/Application\ Support/Google/Chrome`)
+        (Adjust `~/tmp/chrome_debug_uc3` except your default profile path, e.g., `~/Library/Application\ Support/Google/Chrome`)
 
     *   **Linux:**
         ```bash
         google-chrome --remote-debugging-port=9222 --user-data-dir="$HOME/tmp/chrome_debug_uc3"
         ```
-        (Or `google-chrome-stable`. Adjust `~/tmp/chrome_debug_uc3` or use your default profile path, e.g., `~/.config/google-chrome`)
+        (Or `google-chrome-stable`. Adjust `~/tmp/chrome_debug_uc3` except your default profile path, e.g., `~/.config/google-chrome`)
 
 3.  **Log in to Services:** In the newly opened Chrome window (launched by the command above), manually navigate to any websites you need the agent to access (e.g., Gmail, Google) and log in. Perform any necessary 2FA steps.
 
 4.  **Keep this Chrome window open.**
 
 5.  **Configure `uc3`:**
-    The `uc3.py` script is configured to attempt to connect to `http://127.0.0.1:9222` by default if local profile usage is detected. If you used a different port, you'll need to modify the `cdp_url` in `src/uc3_ollama/uc3.py`.
+    The `uc3.py` script is configured to attempt to connect to `http://127.0.0.1:9222` by default. If you used a different port, you'll need to modify the `cdp_url` in `src/uc3_ollama/uc3.py`.
 
     Now, when you run `uv run main.py uc3`, it should connect to this pre-launched, logged-in Chrome session.
 

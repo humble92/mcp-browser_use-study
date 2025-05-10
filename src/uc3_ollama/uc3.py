@@ -10,6 +10,7 @@ from browser_use import Agent, Browser, BrowserConfig
 from browser_use.browser.context import BrowserContextConfig
 
 MAX_STEPS = 20
+CDP_URL_TO_USE = os.environ.get("CHROME_CDP_URL", "http://127.0.0.1:9222")
 COOKIES_FILE_PATH = pathlib.Path("cookies.json").resolve()
 
 # --- OS-dependent Chrome Path Configuration --- #
@@ -115,7 +116,7 @@ async def uc3(argv=None):
         # BrowserConfig & Browser
         browser_cfg = BrowserConfig(
             headless=False,
-            cdp_url="http://127.0.0.1:9222",
+            cdp_url=CDP_URL_TO_USE,
             new_context_config=context_config,
         )
         browser = Browser(config=browser_cfg)
