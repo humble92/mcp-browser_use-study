@@ -7,7 +7,8 @@ A project demonstrating different ways to run local language models using variou
 *   Run local LLMs using different backends:
     *   **Use Case 1 (uc1):** Hugging Face Transformers (`hf`), CTransformers (`ctransformers`), LlamaCpp (`llama_cpp`). (Note: `browser_use.Agent` not yet integrated).
     *   **Use Case 2 (uc2):** GPT4All with `browser_use.Agent`. (Currently experiencing issues, see Known Issues).
-    *   **Use Case 3 (uc3):** Ollama with `browser_use.Agent` for web automation tasks. (Working)
+    *   **Use Case 3 (uc3):** Ollama with `browser_use.Agent` for general web automation tasks. (Working)
+    *   **Use Case 4 (uc4):** Ollama with `browser_use.Agent` specifically for attempting Google Login using `sensitive_data` and `initial_actions`. (Experimental)
 *   Command-line interface to select the desired use case and backend (for uc1).
 
 ## Prerequisites
@@ -30,53 +31,56 @@ A project demonstrating different ways to run local language models using variou
 *   **For Use Case 3 (Ollama with Agent):**
     *   Requires `langchain-ollama` and `browser_use` (included).
     *   Ollama server must be running locally.
-    *   A capable model (e.g., `qwen2.5-coder`) must be pulled via `ollama pull <model_name>`.
-    *   To use your existing Chrome logins/sessions with `uc3`, see the "Using Local Browser Profile with UC3 (Advanced)" section below.
+    *   A capable model (e.g., `qwen2:7b-instruct` or `mistral`) must be pulled via `ollama pull <model_name>`.
+    *   To use your existing Chrome logins/sessions with `uc3` (or potentially `uc4`), see the "Using a non standard profile" section below.
 
-## Using Local Browser Profile with UC3 (Advanced)
+*   **For Use Case 4 (Google Login with Agent - Experimental):**
+    *   Ollama server must be running locally.
+    *   A highly capable model (e.g., `qwen2:7b-instruct` or larger) must be pulled via `ollama pull <model_name>`.
+    *   **Crucially:** You must set the `GOOGLE_ID` and `GOOGLE_PASSWORD` environment variables with your Google credentials before running `uc4`.
+    *   A local Chrome installation path must be detectable or set via the `CHROME_EXECUTABLE_PATH` environment variable.
+    *   *Note: Google login flows are complex and change frequently. This use case might require adjustments or fail due to CAPTCHAs, 2FA, or updated UI elements.*
 
-To allow `uc3` to use your existing browser sessions (e.g., logged-in Gmail), you need to launch a Chrome instance with a specific remote debugging port and user data directory. The `browser_use` agent will then connect to this pre-launched instance via its CDP (Chrome DevTools Protocol) URL.
+## Using a non standard profile
+
+To allow `uc3` to leverage existing browser sessions or observe the process in a dedicated profile, you can launch Chrome with a specific remote debugging port and a non standard user data directory. The `browser_use` agent will then connect to this pre-launched instance via its CDP (Chrome DevTools Protocol) URL.
 
 **Steps:**
 
-1.  **Close all existing Chrome instances:** This is crucial to avoid conflicts. Ensure no `chrome.exe` (Windows) or `Google Chrome` (macOS/Linux) processes are running.
+1.  **Close an existing Chrome instances with the same remote debugging port:** This is crucial to avoid conflicts.
 
 2.  **Launch Chrome with Remote Debugging:**
-    Open your terminal (Command Prompt, PowerShell, Terminal, etc.) and run one of the following commands based on your OS. You might need to adjust the path to `chrome.exe` or `google-chrome` if it's installed in a non-standard location.
-    Using a non-standard debug profile directory (e.g., `C:\tmp\chrome_debug` or `~/tmp/chrome_debug`) is mandatory for security reasons since Chrome 136 (see [Changes to remote debugging switches to improve security](https://developer.chrome.com/blog/remote-debugging-port)). If it is set to the default Chrome data directory, it is ignored and the debug port is not allowed to open.
+    Open your terminal and run the command appropriate for your OS. You might need to adjust the path to `chrome.exe` or `google-chrome` if it's installed in a non-standard location. Using a non-standard profile directory (e.g., `C:\tmp\chrome_debug` or `~/tmp/chrome_debug`) is essential since Chrome 136. (see [Changes to remote debugging switches to improve security](https://developer.chrome.com/blog/remote-debugging-port)). If it is set to the default Chrome data directory, it is ignored and the debug port is not working. **Do not use your default Chrome profile directory.**
 
-    *   **Windows (Command Prompt/PowerShell):**
+    *   **Windows:**
         ```cmd
-        "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\tmp\chrome_debug_uc3"
+        "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 
+        --user-data-dir="C:\tmp\chrome_debug_uc3"
         ```
-        (Adjust `C:\tmp\chrome_debug_uc3` to your desired temporary profile path. Avoid your default profile, e.g., `C:\Users\YourUser\AppData\Local\Google\Chrome\User Data`)
-
     *   **macOS:**
         ```bash
-        /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/tmp/chrome_debug_uc3"
+        /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/
+        tmp/chrome_debug_uc3"
         ```
-        (Adjust `~/tmp/chrome_debug_uc3` except your default profile path, e.g., `~/Library/Application\ Support/Google/Chrome`)
-
     *   **Linux:**
         ```bash
         google-chrome --remote-debugging-port=9222 --user-data-dir="$HOME/tmp/chrome_debug_uc3"
         ```
-        (Or `google-chrome-stable`. Adjust `~/tmp/chrome_debug_uc3` except your default profile path, e.g., `~/.config/google-chrome`)
 
 3.  **Log in to Services:** In the newly opened Chrome window (launched by the command above), manually navigate to any websites you need the agent to access (e.g., Gmail, Google) and log in. Perform any necessary 2FA steps.
 
 4.  **Keep this Chrome window open.**
 
-5.  **Configure `uc3`:**
-    The `uc3.py` script is configured to attempt to connect to `http://127.0.0.1:9222` by default. If you used a different port, you'll need to modify the `cdp_url` in `src/uc3_ollama/uc3.py`.
+5.  **Run the Use Case:** The script (`uc3.py`) is configured to attempt connection to `http://127.0.0.1:9222` by default (can be overridden by `CHROME_CDP_URL` env var).
 
-    Now, when you run `uv run main.py uc3`, it should connect to this pre-launched, logged-in Chrome session.
+    **Fallback to Cookies:** If `uc3` cannot connect via CDP, it will attempt to fall back to using `cookies.json` (if 
+    generated by `conf1`).
 
-    **Fallback to Cookies:** If `uc3` cannot connect via CDP, it will attempt to fall back to using `cookies.json` (if generated by `conf1`).
 
 ## Known Issues
 
-*   **UC2 (GPT4All with Agent):** The `browser_use.Agent` currently fails to complete tasks with the tested GPT4All models. This is likely due to the model's limitations.
+*   **UC2 (GPT4All with Agent):** The `browser_use.Agent` currently fails to complete tasks reliably with tested GPT4All models, likely due to model limitations.
+*   **UC4 (Google Login):** Google login automation is inherently fragile. Changes in Google's UI, security measures (like CAPTCHAs, device verification), or model limitations can easily cause this to fail. It serves as an experimental demonstration of `sensitive_data` and `initial_actions`.
 
 ## Installation
 
@@ -90,15 +94,15 @@ To allow `uc3` to use your existing browser sessions (e.g., logged-in Gmail), yo
     *   Using `uv`:
         ```bash
         uv venv
-        source .venv/bin/activate  # Linux/macOS / Git Bash on Windows
-        # .venv\Scripts\activate  # Windows Command Prompt
-        # . .venv\Scripts\activate.ps1 # Windows PowerShell
+        source .venv/bin/activate  # Linux/macOS / Git Bash
+        # .\.venv\Scripts\activate # Windows PowerShell/CMD
         ```
     *   Using standard `venv`:
         ```bash
         python -m venv .venv
-        source .venv/bin/activate  # Linux/macOS / Git Bash on Windows
-        # .venv\Scripts\activate  # Windows Command Prompt
+        source .venv/bin/activate  # Linux/macOS / Git Bash
+        # .venv\Scripts\activate.bat # Windows CMD
+        # .\.venv\Scripts\Activate.ps1 # Windows PowerShell
         ```
 
 3.  **Install dependencies:**
@@ -108,19 +112,18 @@ To allow `uc3` to use your existing browser sessions (e.g., logged-in Gmail), yo
     # pip install -e .
     ```
 
-4.  **Install Playwright browser drivers (required for `browser_use.Agent`):**
+4.  **Install Playwright browser drivers:**
     ```bash
     playwright install
     ```
-    *Note: Installing `torch` and `llama-cpp-python` (done by `uv pip install -e .`) might have specific OS/hardware requirements. Refer to their official documentation if issues arise during the editable install.*
 
 ## Usage
 
-Run the use cases via the `main.py` script from the **project root directory**.
+Run the use cases via the `main.py` script from the project root directory.
 
 ```bash
 # Show help message
-uv run main.py
+uv run main.py --help
 
 # Run Use Case 1 (Local Hugging Face Transformers)
 uv run main.py uc1 hf
@@ -131,12 +134,16 @@ uv run main.py uc1 ctransformers
 # Run Use Case 1 (LlamaCpp with GGUF)
 uv run main.py uc1 llama_cpp
 
-# Run Use Case 2 (GPT4All with Agent - currently has issues)
+# Run Use Case 2 (GPT4All with Agent - experimental)
 uv run main.py uc2
 
 # Run Use Case 3 (Ollama with Agent)
 uv run main.py uc3
+
+# Run Use Case 4 (Ollama Google Login - experimental)
+# Ensure GOOGLE_ID and GOOGLE_PASSWORD env vars are set!
+uv run main.py uc4
 ```
 
 *   For `uc1`, you need to specify the runner (`hf`, `ctransformers`, or `llama_cpp`) after `uc1`.
-*   Ensure prerequisites for the chosen use case/runner are met (e.g., Ollama server running for `uc3`).
+*   Ensure prerequisites for the chosen use cases/runner are met (e.g., Ollama server running for `uc3`/`uc4`, environment variables set for `uc4`).

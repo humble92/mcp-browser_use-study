@@ -1,47 +1,52 @@
 import argparse
 import sys  # Need sys to exit cleanly
 import asyncio # Import asyncio
-from src.uc1_local_hf.uc1 import uc1
-from src.uc2_gpt4all.uc2 import uc2 # uc2 is now an async function
-from src.uc3_ollama.uc3 import uc3 # uc3 is now an async function
 from src.conf1.conf1 import dump_cookies # browser cookies configuration
+from src.uc1_local_hf.uc1 import uc1
+from src.uc2_gpt4all.uc2 import uc2
+from src.uc3_ollama.uc3 import uc3
+from src.uc4_google_login.uc4 import uc4
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run a specific use case for mcp-browser-use-study.")
-    parser.add_argument(
-        "use_case",
-        choices=["uc1", "uc2", "uc3", "conf1"],
-        help="The use case to run (uc1, uc2, uc3, conf1)",
-        nargs='?',  # Keep it optional to print help if missing
-        default=None
-    )
-    # parse_known_args() splits arguments into known (for this parser)
-    # and unknown (remaining_args)
-    args, remaining_args = parser.parse_known_args()
+    parser = argparse.ArgumentParser(description="Run MCP Browser Use Study Use Cases.")
+    subparsers = parser.add_subparsers(dest="use_case", help='Select the use case to run')
 
-    if args.use_case is None:
-        parser.print_help()
-        sys.exit(0)
+    # --- Use Case 1: Local HF/CTransformers/LlamaCpp --- #
+    parser_uc1 = subparsers.add_parser('uc1', help='Run Use Case 1 (Local HF/CT/LlamaCpp)')
+    # Add subparsers for uc1 runners, allowing arguments like 'hf', 'ctransformers', 'llama_cpp'
+    # We don't define specific args here; uc1 handles them with parse_known_args
 
-    print(f"Hello from mcp-browser-use-study! Selected use case: {args.use_case}")
-    # For conf1, we don't expect remaining arguments, but print if any for debugging.
-    if remaining_args and args.use_case != "conf1":
-        print(f"Remaining arguments passed to use case: {remaining_args}")
-    elif remaining_args and args.use_case == "conf1":
-        print(f"Warning: conf1 does not take additional arguments. Ignoring: {remaining_args}")
+    # --- Use Case 2: GPT4All with Agent --- #
+    parser_uc2 = subparsers.add_parser('uc2', help='Run Use Case 2 (GPT4All with Agent)')
 
-    # Pass the remaining arguments to the selected use case function
-    if args.use_case == "uc1":
-        uc1(remaining_args) # Pass the list of remaining args
-    elif args.use_case == "uc2":
-        # Run the async uc2 function using asyncio.run()
-        asyncio.run(uc2(remaining_args))
-    elif args.use_case == "uc3":
-        # Run the async uc3 function using asyncio.run()
-        asyncio.run(uc3(remaining_args))
-    elif args.use_case == "conf1":
+    # --- Use Case 3: Ollama with Agent --- #
+    parser_uc3 = subparsers.add_parser('uc3', help='Run Use Case 3 (Ollama with Agent, cdp_browser)')
+
+    # --- Use Case 4: Google Login with Agent --- # Added uc4 parser
+    parser_uc4 = subparsers.add_parser('uc4', help='Run Use Case 4 (Ollama: Google Login with Agent\'s senstive_data)')
+
+    # Use parse_known_args for uc1 to allow passthrough arguments
+    # For others, just parse args normally
+    if sys.argv[1:2] == ['uc1']:
+        args, unknown_args = parser.parse_known_args()
+    else:
+        args = parser.parse_args()
+        unknown_args = [] # Ensure unknown_args is defined for other cases
+
+    if args.use_case == "conf1":
         asyncio.run(dump_cookies())
+    elif args.use_case == "uc1":
+        # Pass the remaining arguments (like 'hf', 'ctransformers', etc.) to uc1
+        uc1(unknown_args)
+    elif args.use_case == "uc2":
+        asyncio.run(uc2())
+    elif args.use_case == "uc3":
+        asyncio.run(uc3())
+    elif args.use_case == "uc4": # Added condition for uc4
+        asyncio.run(uc4())
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":
