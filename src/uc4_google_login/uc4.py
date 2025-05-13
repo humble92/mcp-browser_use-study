@@ -10,7 +10,7 @@ from browser_use.browser.context import BrowserContextConfig
 
 MAX_STEPS = 25
 COOKIES_FILE_PATH = pathlib.Path("cookies_uc4.json").resolve()
-MODEL_NAME = "phi4-mini:3.8b" # Or another capable model
+MODEL_NAME = "qwen3:30b" # Or another capable model
 
 # --- OS-dependent Chrome Path Configuration (Keep for potential Playwright fallback) ---
 current_os = platform.system()
@@ -71,6 +71,8 @@ async def uc4(argv=None):
     allowed_domains=[
         "accounts.google.com",
         "mail.google.com",
+        "drive.google.com",
+        "workspace.google.com"
         "gmail.com",
     ]
 
@@ -80,25 +82,20 @@ async def uc4(argv=None):
 
     # Initial action: Go to Google Sign-in page
     initial_actions = [
-        # {"navigate":         {"url": "https://accounts.google.com/"}},
-        # {"fill":             {"selector": "#identifierId", "value": google_id}},
-        # {"click":            {"selector": "#identifierNext"}},
-        # {"wait_for_selector":{"selector": "#password"}},
-        # {"fill":             {"selector": "#password input[type='password']", "value": google_password}},
-        # {"click":            {"selector": "#passwordNext"}},
-        # {"wait_for_url":     {"url": "**/myaccount.google.com/**"}},
-        # {"navigate":         {"url": "https://mail.google.com/"}},
-        # {"wait_for_selector":{"selector": "div[role='main']"}},
+    	{'open_tab': {'url': 'https://mail.google.com'}},
+    	# {'open_tab': {'url': 'https://drive.google.com'}},
     ]
 
     # Define the task for the Agent
-    formatted_task = f"Complete the Google login sequence using the provided sensitive data. The ID is {google_id}. After logging in, navigate to mail.google.com and confirm you see the inbox."
+    formatted_task = f"Complete the Google login using the provided sensitive data of id({google_id}). After logging in, confirm you see the inbox of gmail."
+    formatted_task += f"Then, navigate to google drive and find recent files. Save the file names to a text file."
     print(f"Task for Agent: {formatted_task}")
 
     # Load context cookies (optional)
     # Initialize BrowserContextConfig with allowed_domains
     context_config = BrowserContextConfig(
-        allowed_domains=allowed_domains
+        allowed_domains=allowed_domains,
+        save_downloads_path=os.path.join(os.path.expanduser('~'), 'downloads'),
     )
     if COOKIES_FILE_PATH.exists():
         try:
@@ -107,7 +104,8 @@ async def uc4(argv=None):
                 # Re-initialize with cookies and allowed_domains
                 context_config = BrowserContextConfig(
                     cookies=loaded_cookies,
-                    allowed_domains=allowed_domains
+                    allowed_domains=allowed_domains,
+                    save_downloads_path=os.path.join(os.path.expanduser('~'), 'downloads'),
                 )
             print(f"Loaded cookies from {COOKIES_FILE_PATH}")
         except Exception as e:
@@ -143,6 +141,7 @@ async def uc4(argv=None):
             browser=browser, # Pass the browser instance (not started yet)
             sensitive_data=sensitive_data,
             initial_actions=initial_actions,
+            max_actions_per_step=3,
         )
 
         print(f"Invoking agent for Google Login using Ollama ({model_name})...")
@@ -178,4 +177,4 @@ async def uc4(argv=None):
 #     # Set environment variables before running for standalone test
 #     # os.environ['GOOGLE_ID'] = 'your_test_id'
 #     # os.environ['GOOGLE_PASSWORD'] = 'your_test_password'
-#     asyncio.run(uc4()) 
+#     asyncio.run(uc4())
